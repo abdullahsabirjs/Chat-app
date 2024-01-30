@@ -1,142 +1,18 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <style>
-        body{
-            margin:0;
-            padding:0;
-            background:#000;
-        }
-        #messages{
-            position: fixed;
-            left:0;
-            top:0;
-            width:100%;
-            height:calc( 100% - 50px );
-            background:#000;
-            overflow-y:auto;
-            padding:10px;
-            box-sizing: border-box;
-        }
-        #sendMsg{
-            position: fixed;
-            left:0;
-            bottom:0;
-            width: 100%;
-            height:50px;
-            background:#AAA;
-        }
-        #msgTxt{
-            position: absolute;
-            left:0;
-            top:0;
-            width:calc(100% - 100px);
-            height:100%;
-            padding-left:10px;
-            box-sizing: border-box;
-        }
-        #msgBtn{
-            position: absolute;
-            right:0;
-            top:0;
-            width: 100px;
-            height:100%;
-        }
-        .outer{
-            width:100%;
-            margin-top:10px;
-            display:flex;
-        }
-        #inner{
-            padding:10px;
-            box-sizing: border-box;
-            border-radius:10px;
-        }
-        .me{
-            background:#8800FF;
-            color:#fff;
-        }
-        .notMe{
-            background:#FFF;
-            color:#000;
-        }
-    </style>
+    <title>Chat App</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-
 <body>
-    <div id="messages"></div>
-
-    <div id="sendMsg">
-        <input type="text" id="msgTxt" placeholder="ENTER YOUR MSG...">
-        <input type="submit" id="msgBtn" value="send" onclick="module.sendMsg()">
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div id="sendMsg">
+            <input type="text" id="msgTxt" placeholder="ENTER YOUR MSG...">
+            <input type="submit" id="msgBtn" value="Send" onclick="module.sendMsg()">
+        </div>
     </div>
 
-    <script>
-        module = {};
-    </script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
-        import { getDatabase, ref, set, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-analytics.js";
-
-        const firebaseConfig = {
-    apiKey: "AIzaSyBBa-8U0sIt2gJTuevwCRAO4cYs22Q9AlY",
-    authDomain: "addi-chat-app.firebaseapp.com",
-    projectId: "addi-chat-app",
-    storageBucket: "addi-chat-app.appspot.com",
-    messagingSenderId: "356898130917",
-    appId: "1:356898130917:web:b1aebfad0d6a69022cbd0c",
-    measurementId: "G-BZXTK3EQ5H"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getDatabase(app);
-
-        // variables
-        var msgTxt = document.getElementById('msgTxt');
-        var sender;
-        if(sessionStorage.getItem('sender')){
-            sender = sessionStorage.getItem('sender');
-        } else {
-            sender = prompt('PLEASE ENTER YOUR NAME');
-            sessionStorage.setItem('sender',sender);
-        }
-
-        // TO SEND MESSAGES
-        module.sendMsg = function sendMsg(){
-            var msg = msgTxt.value;
-            var timestamp = new Date().getTime();
-            set(ref(db,"messages/"+timestamp),{
-                msg : msg,
-                sender : sender
-            })
-
-            msgTxt.value="";
-        }
-
-        // TO RECEIVE MSG
-        onChildAdded(ref(db,"messages"), (data)=>{
-            if(data.val().sender == sender){
-                messages.innerHTML += "<div style=justify-content:end class=outer id="+data.key+"><div id=inner class=me>you : "+data.val().msg+"<button id=dltMsg onclick=module.dltMsg("+data.key+")>DELETE</button></div></div>";
-            } else {
-                messages.innerHTML += "<div class=outer id="+data.key+"><div id=inner class=notMe>"+data.val().sender+" : "+data.val().msg+"</div></div>";
-            }
-        })
-
-        // TO DELETE MSG
-        module.dltMsg = function dltMsg(key){
-            remove(ref(db,"messages/"+key));
-        }
-
-        // WHEN MSG IS DELETED
-        onChildRemoved(ref(db,"messages"),(data)=>{
-            var msgBox = document.getElementById(data.key);
-            messages.removeChild(msgBox);
-        })
-    </script>
+    <script src="app.js"></script>
 </body>
-
 </html>
